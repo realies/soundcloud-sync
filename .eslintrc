@@ -1,0 +1,55 @@
+{
+  "plugins": [
+    "filenames",
+    "import",
+    "prettier",
+    "node"
+  ],
+  "extends": [
+    "airbnb-base",
+    "plugin:import/errors",
+    "plugin:prettier/recommended"
+  ],
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaVersion": 9
+  },
+  "env": {
+    "node": true,
+    "es6": true
+  },
+  "rules": {
+    "curly": "error",
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        "devDependencies": true
+      }
+    ],
+    "key-spacing": [
+      "error",
+      {
+        "mode": "minimum"
+      }
+    ],
+    "no-unneeded-ternary": "error",
+    "no-unused-expressions": [
+      "error",
+      {
+        "allowShortCircuit": true
+      }
+    ],
+    "no-use-before-define": [
+      "error",
+      "nofunc"
+    ],
+    "filenames/match-exported": [
+      "error",
+      null,
+      "\\.spec$"
+    ],
+    "prettier/prettier": "error",
+    "import/no-unresolved": 0,
+    "import/no-named-as-default": 0
+  }
+}
