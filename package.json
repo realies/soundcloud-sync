@@ -29,6 +29,7 @@
     "nodemon": "^2.0.12",
     "pino": "^6.13.0",
     "pino-pretty": "^5.1.3",
-    "sanitize-filename": "^1.6.3"
+    "sanitize-filename": "^1.6.3",
+    "utimes": "^4.0.5"
   }
 }

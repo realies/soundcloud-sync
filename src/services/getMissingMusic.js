@@ -8,6 +8,7 @@ import { promisify } from 'util';
 import pathToFfmpeg from 'ffmpeg-static';
 import moment from 'moment';
 import sanitize from 'sanitize-filename';
+import { utimes } from 'utimes';
 import webAgent from './webAgent';
 import { logger } from '../helpers/logger';
 
@@ -59,9 +60,9 @@ export default async (userLikes, folder = './music') => {
             track?.publisher_metadata?.artist || track.artist
           }" -metadata title="${title}" -c copy "${filePath}"`,
         ),
-        touch: await execAsync(
-          `touch -mt ${moment(track.liked_at).format('YYYYMMDDhhmm')} "${filePath}"`,
-        ),
+        touch: await utimes(filePath, {
+          mtime: Number(moment(track.liked_at).valueOf()),
+        }),
       };
     }),
   );
