@@ -3,6 +3,6 @@
 ## Typical Usage
 
 ```
-yarn start realies
+yarn start realies mylikesfolder
 ```
-This creates a `music` subfolder and uses it for a local repository. Running the script subsequently adds newer files.
+If no repository folder is set, a `music` subfolder is created. Running the script subsequently adds newer files.
