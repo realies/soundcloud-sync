@@ -12,6 +12,11 @@ import webAgent from './webAgent';
 import { logger } from '../helpers/logger';
 
 export default async (userLikes, folder = './music') => {
+  const existsAsync = promisify(fs.exists);
+  const mkdirAsync = promisify(fs.mkdir);
+  if (!(await existsAsync(folder))) {
+    await mkdirAsync(folder);
+  }
   const readdirAsync = promisify(fs.readdir);
   const availableMusic = (await readdirAsync(folder)).map(filename => path.parse(filename).name);
 
