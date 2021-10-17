@@ -58,7 +58,7 @@ export default async (userLikes, folder = './music') => {
               : ''
           } -metadata artist="${
             track?.publisher_metadata?.artist || track.artist
-          }" -metadata title="${title}" -c copy "${filePath}"`,
+          }" -metadata title="${title.replace(/"/g, '\\"')}" -c copy "${filePath}"`,
         ),
         touch: await utimes(filePath, {
           mtime: Number(moment(track.liked_at).valueOf()),
