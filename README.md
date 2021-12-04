@@ -5,4 +5,4 @@
 ```
 yarn start realies mylikesfolder
 ```
-If no repository folder is set, a `music` subfolder is created. Running the script subsequently adds newer files.
+If no likes folder is set, a `music` subfolder is created. Running the script subsequently adds missing files.
