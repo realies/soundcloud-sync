@@ -34,7 +34,7 @@ export default async (userLikes, folder = './music') => {
       const playlistUrl = JSON.parse(
         await webAgent(
           track.media.transcodings.find(
-            transcoding => transcoding.format.protocol === 'progressive',
+            transcoding => transcoding.format.protocol === 'progressive' && transcoding.format.mime_type === 'audio/mpeg' || transcoding.format.mime_type === 'audio/mpeg',
           ).url,
         ),
       ).url;
