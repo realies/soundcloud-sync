@@ -30,7 +30,7 @@ export default async (userLikes, folder = './music') => {
 
   const execAsync = promisify(exec);
   return Promise.all(
-    missingTracks.map(async track => {
+    missingTracks.filter(track => track.media.transcodings.length !== 0).map(async track => {
       const playlistUrl = JSON.parse(
         await webAgent(
           track.media.transcodings.find(
