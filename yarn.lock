@@ -1327,10 +1327,10 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@mapbox/node-pre-gyp@^1.0.8":
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/@mapbox/node-pre-gyp/-/node-pre-gyp-1.0.9.tgz#09a8781a3a036151cdebbe8719d6f8b25d4058bc"
-  integrity sha512-aDF3S3rK9Q2gey/WAttUlISduDItz5BU3306M9Eyv6/oS40aMprnopshtlKTykxRNIBEZuRMaZAnbrQ4QtKGyw==
+"@mapbox/node-pre-gyp@^1.0.11":
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/@mapbox/node-pre-gyp/-/node-pre-gyp-1.0.11.tgz#417db42b7f5323d79e93b34a6d7a2a12c0df43fa"
+  integrity sha512-Yhlar6v9WQgUp/He7BdgzOz8lqMQ8sU+jkCq7Wx8Myc5YFJLbEe7lgui/V7G1qB1DJykHSGwreceSaD60Y0PUQ==
   dependencies:
     detect-libc "^2.0.0"
     https-proxy-agent "^5.0.0"
@@ -4075,12 +4075,12 @@ util-deprecate@^1.0.1:
   resolved "https://registry.yarnpkg.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
   integrity sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==
 
-utimes@^5.1.1:
-  version "5.1.1"
-  resolved "https://registry.yarnpkg.com/utimes/-/utimes-5.1.1.tgz#ced2acddf00209cedc9976a86a124c2c9f80a729"
-  integrity sha512-uPuZhfACpz1OrdMTLyMy42z853IVYJ7xxSOTpcIQpNZOO06GeOBL/1TSG/sDJFdepL+A7IFkgIbj2TfV/qsZzQ==
+utimes@^5.2.1:
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/utimes/-/utimes-5.2.1.tgz#e87679f9d6406313431830de9fbcac74ac067170"
+  integrity sha512-6S5mCapmzcxetOD/2UEjL0GF5e4+gB07Dh8qs63xylw5ay4XuyW6iQs70FOJo/puf10LCkvhp4jYMQSDUBYEFg==
   dependencies:
-    "@mapbox/node-pre-gyp" "^1.0.8"
+    "@mapbox/node-pre-gyp" "^1.0.11"
     node-addon-api "^4.3.0"
 
 v8-compile-cache@^2.0.3:
