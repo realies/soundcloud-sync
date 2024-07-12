@@ -16,7 +16,7 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "prettier": "^2.7.1"
+    "prettier": "^3.3.2"
   },
   "dependencies": {
     "@babel/cli": "^7.18.9",
