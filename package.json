@@ -22,7 +22,7 @@
     "@babel/cli": "^7.24.8",
     "@babel/core": "^7.24.9",
     "@babel/node": "^7.24.8",
-    "@babel/preset-env": "^7.24.8",
+    "@babel/preset-env": "^7.25.2",
     "@babel/register": "^7.24.6",
     "ffmpeg-static": "^5.2.0",
     "moment": "^2.30.1",
