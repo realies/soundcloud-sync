@@ -3030,10 +3030,10 @@ pino-abstract-transport@^2.0.0:
   dependencies:
     split2 "^4.0.0"
 
-pino-pretty@^11.3.0:
-  version "11.3.0"
-  resolved "https://registry.yarnpkg.com/pino-pretty/-/pino-pretty-11.3.0.tgz#390b3be044cf3d2e9192c7d19d44f6b690468f2e"
-  integrity sha512-oXwn7ICywaZPHmu3epHGU2oJX4nPmKvHvB/bwrJHlGcbEWaVcotkpyVHMKLKmiVryWYByNp0jpgAcXpFJDXJzA==
+pino-pretty@^12.0.0:
+  version "12.0.0"
+  resolved "https://registry.yarnpkg.com/pino-pretty/-/pino-pretty-12.0.0.tgz#954e8dd1b8acb3ebf3b909defd732ae8e8df3599"
+  integrity sha512-Cx08RuTg6337DbzXqiHpo+2ej0K2FwnyLYIHCmbB5ZhVXJA5XV7zTnvSGoeEERVIGTW9yj7XNtgS+5LpzRdR8w==
   dependencies:
     colorette "^2.0.7"
     dateformat "^4.6.3"
