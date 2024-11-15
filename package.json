@@ -21,7 +21,7 @@
   "dependencies": {
     "@babel/cli": "^7.25.9",
     "@babel/core": "^7.26.0",
-    "@babel/node": "^7.25.9",
+    "@babel/node": "^7.26.0",
     "@babel/preset-env": "^7.26.0",
     "@babel/register": "^7.25.9",
     "ffmpeg-static": "^5.2.0",
