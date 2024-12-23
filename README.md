@@ -24,34 +24,62 @@ The CLI accepts the following arguments:
 ### Node.js
 
 ```bash
-# Install dependencies
-yarn install
+# Install globally
+npm install -g soundcloud-sync
+
+# Or install locally
+yarn add soundcloud-sync
 
 # Basic usage
-yarn start realies
+soundcloud-sync realies
 
 # Custom folder
-yarn start realies ./my-music
+soundcloud-sync realies ./my-music
 
 # Limit number of likes
-yarn start realies --limit 100
+soundcloud-sync realies --limit 100
 
 # With debug logs
-LOG_LEVEL=debug yarn start realies
+LOG_LEVEL=debug soundcloud-sync realies
 ```
 
 ### Deno
 
 ```bash
+# Install globally
+deno install -n soundcloud-sync --allow-net --allow-write --allow-read https://deno.land/x/soundcloud_sync/cli.ts
+
 # Basic usage
-deno task start realies
+soundcloud-sync realies
 
 # Custom folder
-deno task start realies ./my-music
+soundcloud-sync realies ./my-music
 
 # Limit number of likes
-deno task start realies --limit 100
+soundcloud-sync realies --limit 100
 
 # With debug logs
-LOG_LEVEL=debug deno task start realies
+LOG_LEVEL=debug soundcloud-sync realies
 ```
+
+## Development
+
+Clone and install dependencies:
+```bash
+git clone https://github.com/realies/soundcloud-sync.git
+cd soundcloud-sync
+yarn install
+```
+
+Run locally:
+```bash
+# Basic usage
+yarn start realies
+
+# With debug logs
+LOG_LEVEL=debug yarn start realies
+```
+
+## Releases
+
+Published automatically to [npm](https://www.npmjs.com/package/soundcloud-sync)

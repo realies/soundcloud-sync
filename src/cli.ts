@@ -6,7 +6,7 @@ import { logger } from './helpers/logger';
   try {
     const [,, username, folder, ...args] = process.argv;
     if (!username) {
-      logger.error('Usage error', { message: 'soundcloud-sync <username> [folder] [--limit <number>]' });
+      logger.error('soundcloud-sync <username> [folder] [--limit <number>]');
       process.exit(1);
     }
 

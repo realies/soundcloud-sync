@@ -1,12 +1,37 @@
 {
   "name": "soundcloud-sync",
-  "version": "0.0.2",
+  "description": "Sync your SoundCloud likes to local files",
   "license": "MIT",
-  "main": "src/cli.ts",
+  "author": "realies",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/realies/soundcloud-sync.git"
+  },
+  "keywords": [
+    "soundcloud",
+    "download",
+    "sync",
+    "likes",
+    "music"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "soundcloud-sync": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
-    "start": "ts-node src/cli.ts"
+    "start": "ts-node src/cli.ts",
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "clean": "rm -rf dist"
   },
   "devDependencies": {
+    "@types/node": "^22.10.2",
     "eslint": "^9.17.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^9.1.0",
