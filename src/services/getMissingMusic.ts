@@ -28,6 +28,18 @@ export const getTrackArtist = (track: Track) => track?.publisher_metadata?.artis
 const getArtworkUrl = (url?: string) => url?.replace('large', 't500x500');
 
 /**
+ * Escapes special characters in metadata values for ffmpeg.
+ * Handles both quotes and backslashes to prevent command injection.
+ * Returns a safe string even if the input is undefined.
+ */
+const escapeMetadata = (value: string | undefined): string => {
+  if (!value) {
+    return '';
+  }
+  return value.replace(/[\\'"]/g, '\\$&');
+};
+
+/**
  * Downloads tracks that aren't already in the specified folder.
  *
  * The function:
@@ -82,8 +94,8 @@ export default async function getMissingMusic(
 
       const ffmpeg = await execAsync(
         `${pathToFfmpeg} -hide_banner -nostats -i "${playlistUrl}" ${artworkParam} ` +
-          `-metadata artist="${getTrackArtist(track)}" ` +
-          `-metadata title="${getTrackTitle(track).replace(/"/g, '\\"')}" ` +
+          `-metadata artist="${escapeMetadata(getTrackArtist(track))}" ` +
+          `-metadata title="${escapeMetadata(getTrackTitle(track))}" ` +
           `-c copy "${filePath}"`,
       );
 
