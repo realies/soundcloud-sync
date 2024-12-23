@@ -1,4 +1,4 @@
 #!/usr/bin/env node
 
-require('ts-node/register');
-require('../src/cli.ts');
+import 'ts-node/register';
+import '../src/cli';

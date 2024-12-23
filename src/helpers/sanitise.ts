@@ -3,14 +3,17 @@ import { Buffer } from 'node:buffer';
 /**
  * Sanitises filenames by removing/replacing illegal characters.
  * Based on sanitize-filename package but implemented natively.
- * 
+ *
  * Handles:
  * - Illegal chars: /\?<>:\*|"
  * - Control chars: C0 (0x00-0x1f) & C1 (0x80-0x9f)
  * - Reserved names: CON, PRN, AUX, etc.
  * - Max length: 255 bytes
  */
-export function sanitiseFilename(input: string, options: { replacement?: string } = {}): string {
+export default function sanitiseFilename(
+  input: string,
+  options: { replacement?: string } = {},
+): string {
   if (typeof input !== 'string') {
     throw new Error('Input must be string');
   }
@@ -22,7 +25,7 @@ export function sanitiseFilename(input: string, options: { replacement?: string 
   const controlRe = /[\x00-\x1f\x80-\x9f]/g;
   const reservedRe = /^\.+$/;
   const windowsReservedRe = /^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i;
-  const windowsTrailingRe = /[\. ]+$/;
+  const windowsTrailingRe = /[. ]+$/;
 
   // First pass with replacement character
   let sanitised = input

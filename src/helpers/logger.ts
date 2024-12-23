@@ -8,12 +8,14 @@ function formatDate(date: Date): string {
   const minutes = date.getMinutes().toString().padStart(2, '0');
   const seconds = date.getSeconds().toString().padStart(2, '0');
   const ms = date.getMilliseconds().toString().padStart(3, '0');
-  
+
   const offset = -date.getTimezoneOffset();
-  const offsetHours = Math.floor(Math.abs(offset) / 60).toString().padStart(2, '0');
+  const offsetHours = Math.floor(Math.abs(offset) / 60)
+    .toString()
+    .padStart(2, '0');
   const offsetMinutes = (Math.abs(offset) % 60).toString().padStart(2, '0');
   const offsetSign = offset >= 0 ? '+' : '-';
-  
+
   return `[${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${ms} ${offsetSign}${offsetHours}${offsetMinutes}]`;
 }
 
@@ -67,9 +69,9 @@ class Logger {
 
   private isEnabled(level: LogLevel): boolean {
     const levels: LogLevel[] = ['TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR', 'FATAL'];
-    const currentLevel = process.env.LOG_LEVEL?.toUpperCase() as LogLevel || this.level;
+    const currentLevel = (process.env.LOG_LEVEL?.toUpperCase() as LogLevel) || this.level;
     return levels.indexOf(level) >= levels.indexOf(currentLevel);
   }
 }
 
-export const logger = new Logger();
+export default new Logger();

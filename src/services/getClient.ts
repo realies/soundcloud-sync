@@ -1,53 +1,48 @@
-import { logger } from '../helpers/logger';
 import webAgent from './webAgent';
 import { Client } from '../types';
+import logger from '../helpers/logger';
 
+const patterns = {
+  version: /__sc_version="([^"]+)/,
+  scripts: /(?<=<script crossorigin src=")[^"]+\.js(?=")/g,
+  urn: /soundcloud:users:(\d+)/,
+  clientId: /,client_id:"([^"]+)"/,
+} as const;
+
+/**
+ * Retrieves SoundCloud client credentials by scraping a user's profile page.
+ *
+ * The function:
+ * 1. Fetches the user's profile page
+ * 2. Extracts the API version and client URN
+ * 3. Finds and fetches the script containing the client ID
+ *
+ * @param profileName - SoundCloud username (e.g., 'realies')
+ * @returns Client object with ID, version, and URN for API requests
+ * @throws Error if any required data cannot be found
+ */
 export default async function getClient(profileName: string): Promise<Client> {
   logger.debug('Starting getClient function');
-  try {
-    const [apiVersionArr, scriptUrlsArr, urnArr] = await webAgent(`https://soundcloud.com/${profileName}/likes`, [
-      /__sc_version="([^"]+)/,
-      /<script crossorigin src="([^"]+)">/g,
-      /soundcloud:users:(\d+)/,
-    ]);
 
-    if (!Array.isArray(scriptUrlsArr) || !apiVersionArr?.[0] || !urnArr?.[0]) {
-      throw new Error('Missing required client information');
-    }
+  const [version, scriptUrls, urn] = (await webAgent(
+    `https://soundcloud.com/${profileName}/likes`,
+    [patterns.version, patterns.scripts, patterns.urn],
+  )) as string[][];
 
-    const apiVersion = apiVersionArr[0];
-    const scriptUrls = scriptUrlsArr
-      .reverse()
-      .map(script => {
-        const match = script.match(/src="([^"]+)"/);
-        return match?.[1];
-      })
-      .filter((url): url is string => url !== undefined);
-    const urn = urnArr[0];
-
-    if (scriptUrls.length === 0) {
-      throw new Error('No script URLs found');
-    }
-
-    // Try each script in order until we find the client_id
-    for (const url of scriptUrls) {
-      const result = await webAgent(url, [/,client_id:"([^"]+)"/]);
-      if (Array.isArray(result) && result[0]?.length > 0) {
-        const client: Client = {
-          id: result[0][0],
-          version: apiVersion,
-          targetUrn: urn,
-        };
-        logger.debug('Client found', { client });
-        return client;
-      } else {
-        logger.debug('No client found', { url });
-      }
-    }
-
-    throw new Error('Failed to extract client ID from any bundle');
-  } catch (error) {
-    logger.error('Error in getClient', { error: error instanceof Error ? error.message : String(error) });
-    throw error;
+  if (!version?.[0] || !scriptUrls?.length || !urn?.[0]) {
+    throw new Error('Failed to extract required data from profile page');
   }
+
+  // Search scripts from last to first as client ID is usually in the last script
+  const scriptUrlsReversed = scriptUrls.slice().reverse();
+  for await (const url of scriptUrlsReversed) {
+    const [clientId] = (await webAgent(url, [patterns.clientId])) as string[][];
+    if (clientId?.[0]) {
+      const client = { id: clientId[0], version: version[0], urn: urn[0] };
+      logger.debug('Client found', { client });
+      return client;
+    }
+  }
+
+  throw new Error('Failed to find client ID in any script');
 }

@@ -2,8 +2,6 @@
 
 A library and CLI tool to sync your SoundCloud likes to local files.
 
-![](https://i.snipboard.io/ZfMQL5.jpg)
-
 ## Features
 
 - Download liked tracks from any SoundCloud profile
@@ -12,73 +10,40 @@ A library and CLI tool to sync your SoundCloud likes to local files.
 - Supports incremental syncing (only downloads new likes)
 - Can be used as a library in other projects
 
-## Usage
+## Quick Start
 
-The CLI accepts the following arguments:
-```bash
-<username>        # Required: SoundCloud username to fetch likes from
-[folder]          # Optional: Output folder (default: ./music)
---limit <number>  # Optional: Maximum number of likes to fetch
-```
-
-### Node.js
+### CLI Usage
 
 ```bash
 # Install globally
 npm install -g soundcloud-sync
 
-# Or install locally
+# Download your likes
+soundcloud-sync -u your-username
+```
+
+### Library Usage
+
+```bash
+# Install in your project
+npm install soundcloud-sync
+# or
 yarn add soundcloud-sync
-
-# Basic usage
-soundcloud-sync realies
-
-# Custom folder
-soundcloud-sync realies ./my-music
-
-# Limit number of likes
-soundcloud-sync realies --limit 100
-
-# With debug logs
-LOG_LEVEL=debug soundcloud-sync realies
 ```
 
-### Deno
+```typescript
+import { soundCloudSync } from 'soundcloud-sync';
 
-```bash
-# Install globally
-deno install -n soundcloud-sync --allow-net --allow-write --allow-read https://deno.land/x/soundcloud_sync/cli.ts
-
-# Basic usage
-soundcloud-sync realies
-
-# Custom folder
-soundcloud-sync realies ./my-music
-
-# Limit number of likes
-soundcloud-sync realies --limit 100
-
-# With debug logs
-LOG_LEVEL=debug soundcloud-sync realies
+await soundCloudSync({
+  username: 'your-username',
+  limit: 100,
+  folder: './my-music'
+});
 ```
 
-## Development
+## Documentation
 
-Clone and install dependencies:
-```bash
-git clone https://github.com/realies/soundcloud-sync.git
-cd soundcloud-sync
-yarn install
-```
-
-Run locally:
-```bash
-# Basic usage
-yarn start realies
-
-# With debug logs
-LOG_LEVEL=debug yarn start realies
-```
+- [API Reference](API.md)
 
 ## Releases
 
