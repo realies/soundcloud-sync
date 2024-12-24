@@ -86,11 +86,11 @@ export interface Callbacks {
 export interface DownloadResult {
   /** Title of the downloaded track */
   track: string;
-  /** FFmpeg process output */
-  ffmpeg: {
-    /** Standard output from FFmpeg */
-    stdout: string;
-    /** Standard error from FFmpeg */
-    stderr: string;
+  /** Download status */
+  status: {
+    /** Whether the download was successful */
+    success: boolean;
+    /** Any error message if the download failed */
+    error?: string;
   };
 }

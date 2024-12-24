@@ -5,10 +5,11 @@ A library and CLI tool to sync your SoundCloud likes to local files.
 ## Features
 
 - Download liked tracks from any SoundCloud profile
-- Automatic metadata tagging (title, artist, artwork)
+- Automatic metadata tagging (title, artist, artwork) using ID3v2
 - Preserves like dates as file modification times
 - Supports incremental syncing (only downloads new likes)
 - Can be used as a library in other projects
+- No external dependencies required (pure JavaScript/TypeScript implementation)
 
 ## Quick Start
 

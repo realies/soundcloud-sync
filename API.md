@@ -156,12 +156,12 @@ interface Callbacks {
 interface DownloadResult {
   /** Title of the downloaded track */
   track: string;
-  /** FFmpeg process output */
-  ffmpeg: {
-    /** Standard output from FFmpeg */
-    stdout: string;
-    /** Standard error from FFmpeg */
-    stderr: string;
+  /** Download status */
+  status: {
+    /** Whether the download was successful */
+    success: boolean;
+    /** Any error message if the download failed */
+    error?: string;
   };
 }
 ```
@@ -188,10 +188,10 @@ const results = await getMissingMusic(likes, './my-music');
 // Process download results
 console.log('Downloaded tracks:', results.map(r => r.track));
 
-// Check for encoding issues
-const issues = results.filter(r => r.ffmpeg.stderr.includes('Warning'));
+// Check for download issues
+const issues = results.filter(r => !r.status.success);
 if (issues.length > 0) {
-  console.warn('Some tracks had encoding warnings:', issues);
+  console.warn('Some tracks failed to download:', issues);
 }
 
 // Use callbacks for progress tracking
@@ -201,3 +201,4 @@ await getMissingMusic(likes, './my-music', {
   onDownloadComplete: (track) => downloaded.push(track),
   onDownloadError: (track, error) => console.error(`Failed ${track.title}:`, error)
 });
+```

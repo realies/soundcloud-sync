@@ -1,3 +1,5 @@
+import process from 'node:process';
+
 type LogLevel = 'TRACE' | 'DEBUG' | 'INFO' | 'WARN' | 'ERROR' | 'FATAL';
 
 function formatDate(date: Date): string {

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-import soundCloudSync from './index';
-import logger from './helpers/logger';
+import process from 'node:process';
+import soundCloudSync from './index.ts';
+import logger from './helpers/logger.ts';
 
 /**
  * Defines a command-line option with its properties and validation.

@@ -1,8 +1,8 @@
-import getClient from './services/getClient';
-import getUserLikes from './services/getUserLikes';
-import getMissingMusic from './services/getMissingMusic';
-import logger from './helpers/logger';
-import { SoundCloudSyncOptions } from './types';
+import getClient from './services/getClient.ts';
+import getUserLikes from './services/getUserLikes.ts';
+import getMissingMusic from './services/getMissingMusic.ts';
+import logger from './helpers/logger.ts';
+import { SoundCloudSyncOptions } from './types.ts';
 
 export { getClient, getUserLikes, getMissingMusic };
 

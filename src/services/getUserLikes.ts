@@ -1,6 +1,6 @@
-import webAgent from './webAgent';
-import { Client, UserLike } from '../types';
-import logger from '../helpers/logger';
+import webAgent from './webAgent.ts';
+import { Client, UserLike } from '../types.ts';
+import logger from '../helpers/logger.ts';
 
 /**
  * Fetches a user's liked tracks from SoundCloud.

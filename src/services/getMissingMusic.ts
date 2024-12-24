@@ -1,17 +1,9 @@
-import fs from 'node:fs';
+import fs from 'node:fs/promises';
 import path from 'node:path';
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
-import pathToFfmpeg from 'ffmpeg-static';
-import { utimes } from 'utimes';
-import sanitiseFilename from '../helpers/sanitise';
-import webAgent from './webAgent';
-import { UserLike, Callbacks, DownloadResult, Track } from '../types';
-
-const existsAsync = promisify(fs.exists);
-const mkdirAsync = promisify(fs.mkdir);
-const readdirAsync = promisify(fs.readdir);
-const execAsync = promisify(exec);
+import { ID3Writer } from 'browser-id3-writer';
+import sanitiseFilename from '../helpers/sanitise.ts';
+import webAgent from './webAgent.ts';
+import { UserLike, Callbacks, DownloadResult, Track } from '../types.ts';
 
 const getBestTranscoding = (track: Track) =>
   track.media.transcodings.find(
@@ -27,49 +19,37 @@ export const getTrackArtist = (track: Track) => track?.publisher_metadata?.artis
 
 const getArtworkUrl = (url?: string) => url?.replace('large', 't500x500');
 
-/**
- * Escapes special characters in metadata values for ffmpeg.
- * Handles both quotes and backslashes to prevent command injection.
- * Returns a safe string even if the input is undefined.
- */
-const escapeMetadata = (value: string | undefined): string => {
-  if (!value) {
-    return '';
-  }
-  return value.replace(/[\\'"]/g, '\\$&');
+// Download a single segment
+const downloadSegment = async (url: string): Promise<Uint8Array> => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Failed to download segment: ${url}`);
+  const buffer = await response.arrayBuffer();
+  return new Uint8Array(buffer);
 };
 
-/**
- * Downloads tracks that aren't already in the specified folder.
- *
- * The function:
- * 1. Creates the output folder if it doesn't exist
- * 2. Identifies tracks that haven't been downloaded yet
- * 3. Downloads each missing track with metadata and artwork
- * 4. Sets the file modification time to match the like date
- *
- * For each track:
- * - Finds the best quality MP3 stream
- * - Downloads and embeds artwork if available
- * - Sets metadata (title, artist)
- * - Preserves like date as file mtime
- *
- * @param likes - Array of liked tracks to process
- * @param folder - Output folder for downloaded tracks (default: ./music)
- * @param callbacks - Optional callbacks for download progress events
- * @returns Array of results for each downloaded track
- * @throws Error if a track fails to download or if folder operations fail
- */
+// Download artwork if available
+const downloadArtwork = async (url: string): Promise<ArrayBuffer | null> => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) return null;
+    return response.arrayBuffer();
+  } catch {
+    return null;
+  }
+};
+
 export default async function getMissingMusic(
   likes: UserLike[],
   folder = './music',
   callbacks: Callbacks = {},
 ): Promise<DownloadResult[]> {
-  if (!(await existsAsync(folder))) {
-    await mkdirAsync(folder);
+  try {
+    await fs.access(folder);
+  } catch {
+    await fs.mkdir(folder);
   }
 
-  const availableMusic = (await readdirAsync(folder)).map(filename => path.parse(filename).name);
+  const availableMusic = (await fs.readdir(folder)).map(filename => path.parse(filename).name);
 
   const downloadTrack = async ({ created_at, track }: UserLike): Promise<DownloadResult> => {
     callbacks.onDownloadStart?.(track);
@@ -80,34 +60,72 @@ export default async function getMissingMusic(
         throw new Error('No suitable audio format found');
       }
 
-      const { url: playlistUrl } = JSON.parse((await webAgent(transcoding.url)) as string);
+      const transcodingResponse = await webAgent(transcoding.url);
+      const { url: playlistUrl } = JSON.parse(transcodingResponse as string);
 
-      const filePath = path.format({
-        dir: folder,
-        name: sanitiseFilename(track.title),
-        ext: '.mp3',
-      });
+      // Get playlist
+      const playlistResponse = await fetch(playlistUrl);
+      if (!playlistResponse.ok) throw new Error('Failed to fetch playlist');
+      const playlist = await playlistResponse.text();
 
-      const artworkParam = track.artwork_url
-        ? `-f image2pipe -i "${getArtworkUrl(track.artwork_url)}" -map_metadata 0 -map 0 -map 1`
-        : '';
+      // Parse playlist for MP3 segments
+      const segments = playlist
+        .split('\n')
+        .filter(line => line.trim() && !line.startsWith('#'))
+        .map(line => new URL(line, playlistUrl).toString());
 
-      const ffmpeg = await execAsync(
-        `${pathToFfmpeg} -hide_banner -nostats -i "${playlistUrl}" ${artworkParam} ` +
-          `-metadata artist="${escapeMetadata(getTrackArtist(track))}" ` +
-          `-metadata title="${escapeMetadata(getTrackTitle(track))}" ` +
-          `-c copy "${filePath}"`,
-      );
+      if (segments.length === 0) {
+        throw new Error('No audio segments found in playlist');
+      }
 
-      await utimes(filePath, {
-        mtime: new Date(created_at).getTime(),
-      });
+      // Download and concatenate segments
+      const chunks = await Promise.all(segments.map(downloadSegment));
+
+      // Combine all chunks
+      const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+      const audioBuffer = new Uint8Array(totalLength);
+      let offset = 0;
+      for (const chunk of chunks) {
+        audioBuffer.set(chunk, offset);
+        offset += chunk.length;
+      }
+
+      // Add ID3 tags
+      const writer = new ID3Writer(audioBuffer);
+      writer.setFrame('TIT2', getTrackTitle(track)).setFrame('TPE1', [getTrackArtist(track)]);
+
+      // Add artwork if available
+      if (track.artwork_url) {
+        const artworkBuffer = await downloadArtwork(getArtworkUrl(track.artwork_url)!);
+        if (artworkBuffer) {
+          writer.setFrame('APIC', {
+            type: 3,
+            data: artworkBuffer,
+            description: '',
+          });
+        }
+      }
+
+      // Write file with tags
+      const taggedBuffer = new Uint8Array(writer.addTag());
+
+      const filePath = path.join(folder, `${sanitiseFilename(track.title)}.mp3`);
+
+      await fs.writeFile(filePath, taggedBuffer);
+      const timestamp = new Date(created_at);
+      await fs.utimes(filePath, timestamp, timestamp);
 
       callbacks.onDownloadComplete?.(track);
-      return { track: track.title, ffmpeg };
+      return { track: track.title, status: { success: true } };
     } catch (error) {
       callbacks.onDownloadError?.(track, error);
-      throw error;
+      return {
+        track: track.title,
+        status: {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        },
+      };
     }
   };
 

@@ -1,5 +1,5 @@
 import https from 'node:https';
-import logger from '../helpers/logger';
+import logger from '../helpers/logger.ts';
 
 /**
  * Fetches data from a URL and optionally extracts matches using regular expressions.

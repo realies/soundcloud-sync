@@ -1,6 +1,6 @@
-import webAgent from './webAgent';
-import { Client } from '../types';
-import logger from '../helpers/logger';
+import webAgent from './webAgent.ts';
+import { Client } from '../types.ts';
+import logger from '../helpers/logger.ts';
 
 const patterns = {
   version: /__sc_version="([^"]+)/,

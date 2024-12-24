@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "target": "es2020",
-    "module": "commonjs",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
     "lib": ["es2020"],
     "strict": true,
     "esModuleInterop": true,
@@ -11,7 +13,8 @@
     "outDir": "dist",
     "rootDir": "src",
     "types": ["node"],
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "noEmit": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "**/__tests__/*"]

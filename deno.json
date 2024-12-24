@@ -1,14 +1,19 @@
 {
   "tasks": {
-    "start": "deno run --allow-net --allow-read --allow-write --allow-env --allow-run --allow-ffi src/cli.ts"
+    "start": "deno run --allow-net --allow-read --allow-write --allow-env --allow-sys src/cli.ts"
   },
   "imports": {
-    "ffmpeg-static": "npm:ffmpeg-static@^5.2.0",
-    "utimes": "npm:utimes@^5.2.1"
+    "browser-id3-writer": "npm:browser-id3-writer@^6.1.0"
   },
-  "unstable": ["sloppy-imports"],
   "compilerOptions": {
-    "lib": ["deno.ns", "es2020"],
-    "strict": true
+    "lib": ["deno.window", "deno.ns", "es2020"],
+    "strict": true,
+    "checkJs": false,
+    "noImplicitAny": true
+  },
+  "lint": {
+    "rules": {
+      "exclude": ["no-control-regex"]
+    }
   }
 }
