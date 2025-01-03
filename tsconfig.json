@@ -3,6 +3,7 @@
     "target": "es2020",
     "module": "esnext",
     "moduleResolution": "bundler",
+    "rewriteRelativeImportExtensions": true,
     "allowImportingTsExtensions": true,
     "lib": ["es2020"],
     "strict": true,
@@ -14,7 +15,7 @@
     "rootDir": "src",
     "types": ["node"],
     "noImplicitAny": false,
-    "noEmit": true
+    "noEmit": false
   },
   "include": ["src"],
   "exclude": ["node_modules", "**/__tests__/*"]
