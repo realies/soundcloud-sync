@@ -1,5 +1,11 @@
 # SoundCloud Sync
 
+[![GitHub Last Commit](https://img.shields.io/github/last-commit/realies/soundcloud-sync?style=flat-square&logo=git&label=last%20commit)](https://github.com/realies/soundcloud-sync/commits/main)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/realies/soundcloud-sync/npm-publish.yml?style=flat-square&logo=github&label=build)](https://github.com/realies/soundcloud-sync/actions)
+[![CodeQL](https://img.shields.io/github/actions/workflow/status/realies/soundcloud-sync/codeql-analysis.yml?style=flat-square&logo=github&label=CodeQL)](https://github.com/realies/soundcloud-sync/actions/workflows/codeql-analysis.yml)
+[![NPM Version](https://img.shields.io/npm/v/soundcloud-sync?style=flat-square&logo=npm)](https://www.npmjs.com/package/soundcloud-sync)
+[![NPM Downloads](https://img.shields.io/npm/dm/soundcloud-sync?style=flat-square&logo=npm)](https://www.npmjs.com/package/soundcloud-sync)
+
 A library and CLI tool to sync your SoundCloud likes to local files.
 
 ## Features
