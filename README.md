@@ -13,6 +13,7 @@ A library and CLI tool to sync your SoundCloud likes to local files.
 - Download liked tracks from any SoundCloud profile
 - Automatic metadata tagging (title, artist, artwork) using ID3v2
 - Preserves like dates as file modification times
+- Verify and update timestamps of existing files
 - Supports incremental syncing (only downloads new likes)
 - Can be used as a library in other projects
 - No external dependencies required (pure JavaScript/TypeScript implementation)
@@ -28,6 +29,12 @@ npm install -g soundcloud-sync
 
 # Download your likes
 soundcloud-sync -u your-username
+
+# Verify timestamps of existing files
+soundcloud-sync -u your-username --verify-timestamps
+
+# Download with all options
+soundcloud-sync -u your-username --limit 100 --folder ./my-music --verify-timestamps
 ```
 
 Pre-built binaries are also available from the [releases page](https://github.com/realies/soundcloud-sync/releases) for:

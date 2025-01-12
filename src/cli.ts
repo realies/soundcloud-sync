@@ -51,6 +51,10 @@ const config: CliConfig = {
       value: true,
     },
     {
+      name: '--verify-timestamps',
+      description: 'Verify and update timestamps of existing files to match like dates',
+    },
+    {
       name: '--limit',
       short: '-l',
       description: 'Number of latest likes to fetch',
@@ -60,6 +64,7 @@ const config: CliConfig = {
         if (Number.isNaN(num) || num <= 0) {
           return 'must be a positive number';
         }
+        return undefined;
       },
     },
     {
@@ -216,6 +221,7 @@ class CliParser {
       username: parsed['--user'] as string,
       folder: parsed['--folder'] as string | undefined,
       limit: parsed['--limit'] ? Number(parsed['--limit']) : undefined,
+      verifyTimestamps: parsed['--verify-timestamps'] === true,
     });
   } catch (error) {
     logger.error('Error:', { error: error instanceof Error ? error.message : String(error) });

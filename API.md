@@ -16,6 +16,7 @@ Options:
   --user, -u <value> (required)    SoundCloud username to fetch likes from
   --limit, -l <value>              Number of latest likes to fetch
   --folder, -f <value>             Output folder (default: ./music)
+  --verify-timestamps              Verify and update timestamps of existing files
   --help, -h                       Show this help message
 ```
 
@@ -93,6 +94,8 @@ interface SoundCloudSyncOptions {
   folder?: string;
   /** Number of latest likes to fetch */
   limit?: number;
+  /** Whether to verify and update timestamps of existing files */
+  verifyTimestamps?: boolean;
 }
 
 interface Client {
@@ -151,6 +154,8 @@ interface Callbacks {
   onDownloadComplete?: (track: Track) => void;
   /** Called when a track download fails */
   onDownloadError?: (track: Track, error: unknown) => void;
+  /** Called when a track's timestamp has been updated */
+  onTimestampUpdate?: (track: Track, oldDate: Date, newDate: Date) => void;
 }
 
 interface DownloadResult {
@@ -162,6 +167,8 @@ interface DownloadResult {
     success: boolean;
     /** Any error message if the download failed */
     error?: string;
+    /** Additional status message for successful operations */
+    message?: string;
   };
 }
 ```
@@ -175,7 +182,8 @@ import { soundCloudSync } from 'soundcloud-sync';
 await soundCloudSync({
   username: 'your-username',
   limit: 100,
-  folder: './my-music'
+  folder: './my-music',
+  verifyTimestamps: true  // Enable timestamp verification
 });
 
 // Low-level usage with individual functions
@@ -183,22 +191,24 @@ import { getClient, getUserLikes, getMissingMusic } from 'soundcloud-sync';
 
 const client = await getClient('your-username');
 const likes = await getUserLikes(client, '0', 100);
-const results = await getMissingMusic(likes, './my-music');
-
-// Process download results
-console.log('Downloaded tracks:', results.map(r => r.track));
-
-// Check for download issues
-const issues = results.filter(r => !r.status.success);
-if (issues.length > 0) {
-  console.warn('Some tracks failed to download:', issues);
-}
-
-// Use callbacks for progress tracking
-const downloaded: Track[] = [];
-await getMissingMusic(likes, './my-music', {
+const results = await getMissingMusic(likes, './my-music', {
   onDownloadStart: (track) => console.log(`Starting ${track.title}`),
-  onDownloadComplete: (track) => downloaded.push(track),
-  onDownloadError: (track, error) => console.error(`Failed ${track.title}:`, error)
-});
+  onDownloadComplete: (track) => console.log(`Completed ${track.title}`),
+  onDownloadError: (track, error) => console.error(`Failed ${track.title}:`, error),
+  onTimestampUpdate: (track, oldDate, newDate) =>
+    console.log(
+      `Updated timestamp for ${track.title} from ${oldDate.toISOString()} to ${newDate.toISOString()}`,
+    ),
+}, true);
+```
+
+```bash
+# Download your likes
+soundcloud-sync -u your-username
+
+# Download with timestamp verification
+soundcloud-sync -u your-username --verify-timestamps
+
+# Download with all options
+soundcloud-sync -u your-username --limit 100 --folder ./my-music --verify-timestamps
 ```

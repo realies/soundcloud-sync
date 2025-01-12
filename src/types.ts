@@ -8,6 +8,8 @@ export interface SoundCloudSyncOptions {
   folder?: string;
   /** Number of latest likes to fetch */
   limit?: number;
+  /** Whether to verify and update timestamps of existing files */
+  verifyTimestamps?: boolean;
 }
 
 /**
@@ -78,6 +80,8 @@ export interface Callbacks {
   onDownloadComplete?: (track: Track) => void;
   /** Called when a track download fails */
   onDownloadError?: (track: Track, error: unknown) => void;
+  /** Called when a track's timestamp has been updated */
+  onTimestampUpdate?: (track: Track, oldDate: Date, newDate: Date) => void;
 }
 
 /**
