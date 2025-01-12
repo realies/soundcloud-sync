@@ -4,7 +4,6 @@ import { ID3Writer } from 'browser-id3-writer';
 import sanitiseFilename from '../helpers/sanitise.ts';
 import webAgent from './webAgent.ts';
 import { UserLike, Callbacks, DownloadResult, Track } from '../types.ts';
-import logger from '../helpers/logger.ts';
 
 const getBestTranscoding = (track: Track) =>
   track.media.transcodings.find(
@@ -39,43 +38,10 @@ const downloadArtwork = async (url: string): Promise<ArrayBuffer | null> => {
   }
 };
 
-const verifyAndUpdateTimestamp = async (
-  filePath: string,
-  created_at: string,
-  track: Track,
-  callbacks: Callbacks,
-): Promise<boolean> => {
-  try {
-    const stats = await fs.stat(filePath);
-    const likeDate = new Date(created_at);
-    const fileDate = stats.mtime;
-
-    if (Math.abs(likeDate.getTime() - fileDate.getTime()) > 1000) {
-      // 1 second tolerance
-      logger.debug('Updating timestamp', {
-        file: path.basename(filePath),
-        from: fileDate.toISOString(),
-        to: likeDate.toISOString(),
-      });
-      await fs.utimes(filePath, likeDate, likeDate);
-      callbacks.onTimestampUpdate?.(track, fileDate, likeDate);
-      return true;
-    }
-    return false;
-  } catch (error) {
-    logger.error('Failed to verify/update timestamp', {
-      file: path.basename(filePath),
-      error: error instanceof Error ? error.message : String(error),
-    });
-    return false;
-  }
-};
-
 export default async function getMissingMusic(
   likes: UserLike[],
   folder = './music',
   callbacks: Callbacks = {},
-  verifyTimestamps = false,
 ): Promise<DownloadResult[]> {
   try {
     await fs.access(folder);
@@ -85,21 +51,6 @@ export default async function getMissingMusic(
 
   const availableMusic = (await fs.readdir(folder)).map(filename => path.parse(filename).name);
 
-  // Handle timestamp verification for existing files first
-  if (verifyTimestamps) {
-    const existingTracks = likes.filter(({ track }) =>
-      availableMusic.includes(sanitiseFilename(track.title)),
-    );
-
-    // Just verify timestamps, don't collect results since these aren't downloads
-    await Promise.all(
-      existingTracks.map(async ({ track, created_at }) => {
-        const filePath = path.join(folder, `${sanitiseFilename(track.title)}.mp3`);
-        await verifyAndUpdateTimestamp(filePath, created_at, track, callbacks);
-      }),
-    );
-  }
-
   // Handle missing tracks in parallel
   const missingTracks = likes.filter(
     ({ track }) =>
@@ -107,7 +58,6 @@ export default async function getMissingMusic(
       track.media.transcodings.length > 0,
   );
 
-  // Only return download results
   return Promise.all(
     missingTracks.map(async ({ track, created_at }) => {
       callbacks.onDownloadStart?.(track);

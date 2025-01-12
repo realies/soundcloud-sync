@@ -98,3 +98,20 @@ export interface DownloadResult {
     error?: string;
   };
 }
+
+/**
+ * Result of a timestamp verification operation.
+ */
+export interface VerifyTimestampResult {
+  /** Title of the verified track */
+  track: string;
+  /** Verification status */
+  status: {
+    /** Whether the timestamp was verified successfully */
+    success: boolean;
+    /** Whether the timestamp needed updating */
+    updated: boolean;
+    /** Any error message if verification failed */
+    error?: string;
+  };
+}

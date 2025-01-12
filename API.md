@@ -80,8 +80,20 @@ Downloads missing tracks from a list of liked tracks.
 function getMissingMusic(
   likes: UserLike[],
   folder?: string,
-  callbacks?: Callbacks
+  callbacks?: Callbacks,
 ): Promise<DownloadResult[]>
+```
+
+#### verifyTimestamps(likes, folder, callbacks?)
+
+Verifies and updates timestamps of existing files to match their like dates.
+
+```typescript
+function verifyTimestamps(
+  likes: UserLike[],
+  folder: string,
+  callbacks?: Callbacks,
+): Promise<VerifyTimestampResult[]>
 ```
 
 ### Types
@@ -167,8 +179,20 @@ interface DownloadResult {
     success: boolean;
     /** Any error message if the download failed */
     error?: string;
-    /** Additional status message for successful operations */
-    message?: string;
+  };
+}
+
+interface VerifyTimestampResult {
+  /** Title of the verified track */
+  track: string;
+  /** Verification status */
+  status: {
+    /** Whether the timestamp was verified successfully */
+    success: boolean;
+    /** Whether the timestamp needed updating */
+    updated: boolean;
+    /** Any error message if verification failed */
+    error?: string;
   };
 }
 ```
@@ -187,19 +211,31 @@ await soundCloudSync({
 });
 
 // Low-level usage with individual functions
-import { getClient, getUserLikes, getMissingMusic } from 'soundcloud-sync';
+import { getClient, getUserLikes, getMissingMusic, verifyTimestamps } from 'soundcloud-sync';
 
 const client = await getClient('your-username');
 const likes = await getUserLikes(client, '0', 100);
-const results = await getMissingMusic(likes, './my-music', {
-  onDownloadStart: (track) => console.log(`Starting ${track.title}`),
-  onDownloadComplete: (track) => console.log(`Completed ${track.title}`),
-  onDownloadError: (track, error) => console.error(`Failed ${track.title}:`, error),
+
+// Define callbacks for progress tracking
+const callbacks = {
+  onDownloadStart: (track) => console.log(`Starting "${track.title}"`),
+  onDownloadComplete: (track) => console.log(`Completed "${track.title}"`),
+  onDownloadError: (track, error) => console.error(`Failed "${track.title}": ${error}`),
   onTimestampUpdate: (track, oldDate, newDate) =>
-    console.log(
-      `Updated timestamp for ${track.title} from ${oldDate.toISOString()} to ${newDate.toISOString()}`,
-    ),
-}, true);
+    console.log(`Updated timestamp for ${track.title} from ${oldDate.toISOString()} to ${newDate.toISOString()}`),
+};
+
+// Verify timestamps of existing files
+const verifyResults = await verifyTimestamps(likes, './my-music', callbacks);
+console.log('Updated files:', verifyResults.filter(r => r.status.updated).map(r => r.track));
+console.log('Failed verifications:', verifyResults.filter(r => !r.status.success).map(r => r.track));
+
+// Download missing tracks
+const results = await getMissingMusic(likes, './my-music', callbacks);
+
+// Process download results
+console.log('Downloaded tracks:', results.filter(r => r.status.success).map(r => r.track));
+console.log('Failed tracks:', results.filter(r => !r.status.success).map(r => r.track));
 ```
 
 ```bash
