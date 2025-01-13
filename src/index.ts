@@ -3,7 +3,7 @@ import getUserLikes from './services/getUserLikes.ts';
 import getMissingMusic from './services/getMissingMusic.ts';
 import verifyTimestamps from './services/verifyTimestamps.ts';
 import logger from './helpers/logger.ts';
-import { SoundCloudSyncOptions } from './types.ts';
+import { SoundCloudSyncOptions, Track } from './types.ts';
 
 export { getClient, getUserLikes, getMissingMusic, verifyTimestamps };
 
@@ -29,15 +29,15 @@ export default async function soundCloudSync({
     const userLikes = await getUserLikes(client, '0', limit);
 
     const callbacks = {
-      onDownloadStart: track => logger.info(`Downloading "${track.title}"`),
-      onDownloadComplete: track => logger.info(`Added "${track.title}"`),
-      onDownloadError: (track, error) =>
+      onDownloadStart: (track: Track) => logger.info(`Downloading "${track.title}"`),
+      onDownloadComplete: (track: Track) => logger.info(`Added "${track.title}"`),
+      onDownloadError: (track: Track, error: unknown) =>
         logger.error(
           `Failed to download "${track.title}": ${
             error instanceof Error ? error.message : String(error)
           }`,
         ),
-      onTimestampUpdate: (track, oldDate, newDate) =>
+      onTimestampUpdate: (track: Track, oldDate: Date, newDate: Date) =>
         logger.info(
           `Updated timestamp for "${track.title}" from ${oldDate.toISOString()} to ${newDate.toISOString()}`,
         ),
