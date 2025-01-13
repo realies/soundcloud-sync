@@ -12,8 +12,17 @@ export default async function soundCloudSync({
   folder = './music',
   limit = 50,
   verifyTimestamps: shouldVerifyTimestamps = false,
+  noDownload = false,
 }: SoundCloudSyncOptions) {
-  logger.info(`Getting latest likes for ${username}`);
+  let message = `Getting latest ${limit} likes for ${username}`;
+  if (shouldVerifyTimestamps && noDownload) {
+    message = `Getting latest ${limit} likes for ${username} to verify timestamps`;
+  } else if (shouldVerifyTimestamps) {
+    message = `Getting latest ${limit} likes for ${username} to verify timestamps and download new tracks`;
+  } else if (!noDownload) {
+    message = `Getting latest ${limit} likes for ${username} to download new tracks`;
+  }
+  logger.info(message);
 
   try {
     const client = await getClient(username);
@@ -30,7 +39,7 @@ export default async function soundCloudSync({
         ),
       onTimestampUpdate: (track, oldDate, newDate) =>
         logger.info(
-          `Updated timestamp for ${track.title}" from ${oldDate.toISOString()} to ${newDate.toISOString()}`,
+          `Updated timestamp for "${track.title}" from ${oldDate.toISOString()} to ${newDate.toISOString()}`,
         ),
     };
 
@@ -39,9 +48,13 @@ export default async function soundCloudSync({
       ({ length: verifyResultsLength } = await verifyTimestamps(userLikes, folder, callbacks));
     }
 
-    const downloadResults = await getMissingMusic(userLikes, folder, callbacks);
+    let downloadResultsLength = 0;
+    if (!noDownload) {
+      ({ length: downloadResultsLength } = await getMissingMusic(userLikes, folder, callbacks));
+    }
+
     logger.info(
-      `Completed successfully: ${downloadResults.length} tracks downloaded${
+      `Completed successfully${downloadResultsLength ? `: ${downloadResultsLength} tracks downloaded` : ''}${
         shouldVerifyTimestamps ? `, ${verifyResultsLength} tracks verified` : ''
       }`,
     );

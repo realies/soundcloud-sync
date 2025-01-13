@@ -17,6 +17,7 @@ Options:
   --limit, -l <value>              Number of latest likes to fetch
   --folder, -f <value>             Output folder (default: ./music)
   --verify-timestamps              Verify and update timestamps of existing files
+  --no-download                    Skip downloading new tracks
   --help, -h                       Show this help message
 ```
 
@@ -108,6 +109,8 @@ interface SoundCloudSyncOptions {
   limit?: number;
   /** Whether to verify and update timestamps of existing files */
   verifyTimestamps?: boolean;
+  /** Whether to skip downloading new tracks */
+  noDownload?: boolean;
 }
 
 interface Client {
@@ -203,11 +206,26 @@ interface VerifyTimestampResult {
 // High-level usage
 import { soundCloudSync } from 'soundcloud-sync';
 
+// Download latest likes
 await soundCloudSync({
   username: 'your-username',
   limit: 100,
   folder: './my-music',
-  verifyTimestamps: true  // Enable timestamp verification
+});
+
+// Only verify timestamps of existing files
+await soundCloudSync({
+  username: 'your-username',
+  limit: 100,
+  verifyTimestamps: true,
+  noDownload: true,
+});
+
+// Verify timestamps and download new tracks
+await soundCloudSync({
+  username: 'your-username',
+  limit: 100,
+  verifyTimestamps: true,
 });
 
 // Low-level usage with individual functions
@@ -222,7 +240,7 @@ const callbacks = {
   onDownloadComplete: (track) => console.log(`Completed "${track.title}"`),
   onDownloadError: (track, error) => console.error(`Failed "${track.title}": ${error}`),
   onTimestampUpdate: (track, oldDate, newDate) =>
-    console.log(`Updated timestamp for ${track.title} from ${oldDate.toISOString()} to ${newDate.toISOString()}`),
+    console.log(`Updated timestamp for "${track.title}" from ${oldDate.toISOString()} to ${newDate.toISOString()}`),
 };
 
 // Verify timestamps of existing files
@@ -232,8 +250,6 @@ console.log('Failed verifications:', verifyResults.filter(r => !r.status.success
 
 // Download missing tracks
 const results = await getMissingMusic(likes, './my-music', callbacks);
-
-// Process download results
 console.log('Downloaded tracks:', results.filter(r => r.status.success).map(r => r.track));
 console.log('Failed tracks:', results.filter(r => !r.status.success).map(r => r.track));
 ```
@@ -242,9 +258,12 @@ console.log('Failed tracks:', results.filter(r => !r.status.success).map(r => r.
 # Download your likes
 soundcloud-sync -u your-username
 
-# Download with timestamp verification
-soundcloud-sync -u your-username --verify-timestamps
-
 # Download with all options
-soundcloud-sync -u your-username --limit 100 --folder ./my-music --verify-timestamps
+soundcloud-sync -u your-username --limit 100 --folder ./my-music
+
+# Only verify timestamps of existing files
+soundcloud-sync -u your-username --verify-timestamps --no-download
+
+# Verify timestamps and download new tracks
+soundcloud-sync -u your-username --verify-timestamps --limit 100
 ```

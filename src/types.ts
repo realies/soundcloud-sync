@@ -10,6 +10,8 @@ export interface SoundCloudSyncOptions {
   limit?: number;
   /** Whether to verify and update timestamps of existing files */
   verifyTimestamps?: boolean;
+  /** Whether to skip downloading new tracks */
+  noDownload?: boolean;
 }
 
 /**

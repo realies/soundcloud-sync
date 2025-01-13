@@ -55,6 +55,10 @@ const config: CliConfig = {
       description: 'Verify and update timestamps of existing files to match like dates',
     },
     {
+      name: '--no-download',
+      description: 'Skip downloading new tracks',
+    },
+    {
       name: '--limit',
       short: '-l',
       description: 'Number of latest likes to fetch',
@@ -83,6 +87,9 @@ const config: CliConfig = {
     'soundcloud-sync -u realies',
     'soundcloud-sync --user realies --limit 100',
     'soundcloud-sync -u realies -l 100 -f ./my-music',
+    'soundcloud-sync -u realies --verify-timestamps  # verify timestamps of latest 50 likes',
+    'soundcloud-sync -u realies --verify-timestamps --no-download  # only verify timestamps',
+    'soundcloud-sync -u realies --limit 100 --verify-timestamps --no-download  # verify timestamps of latest 100 likes',
   ],
 };
 
@@ -222,6 +229,7 @@ class CliParser {
       folder: parsed['--folder'] as string | undefined,
       limit: parsed['--limit'] ? Number(parsed['--limit']) : undefined,
       verifyTimestamps: parsed['--verify-timestamps'] === true,
+      noDownload: parsed['--no-download'] === true,
     });
   } catch (error) {
     logger.error('Error:', { error: error instanceof Error ? error.message : String(error) });

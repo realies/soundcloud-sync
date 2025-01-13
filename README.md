@@ -16,7 +16,7 @@ A library and CLI tool to sync your SoundCloud likes to local files.
 - Verify and update timestamps of existing files
 - Supports incremental syncing (only downloads new likes)
 - Can be used as a library in other projects
-- No external dependencies required (pure JavaScript/TypeScript implementation)
+- Minimal dependencies with pure TypeScript implementation
 - Cross-platform support with pre-built binaries
 
 ## Quick Start
@@ -30,11 +30,17 @@ npm install -g soundcloud-sync
 # Download your likes
 soundcloud-sync -u your-username
 
-# Verify timestamps of existing files
-soundcloud-sync -u your-username --verify-timestamps
+# Download with limit
+soundcloud-sync -u your-username --limit 100
 
-# Download with all options
+# Download with limit and custom folder
+soundcloud-sync -u your-username --limit 100 --folder ./my-music
+
+# Download and verify timestamps
 soundcloud-sync -u your-username --limit 100 --folder ./my-music --verify-timestamps
+
+# Only verify timestamps of existing files
+soundcloud-sync -u your-username --limit 100 --folder ./my-music --verify-timestamps --no-download
 ```
 
 Pre-built binaries are also available from the [releases page](https://github.com/realies/soundcloud-sync/releases) for:
@@ -54,10 +60,26 @@ yarn add soundcloud-sync
 ```typescript
 import { soundCloudSync } from 'soundcloud-sync';
 
+// Download latest likes
 await soundCloudSync({
   username: 'your-username',
   limit: 100,
   folder: './my-music'
+});
+
+// Only verify timestamps of existing files
+await soundCloudSync({
+  username: 'your-username',
+  limit: 100,
+  verifyTimestamps: true,
+  noDownload: true
+});
+
+// Verify timestamps and download new tracks
+await soundCloudSync({
+  username: 'your-username',
+  limit: 100,
+  verifyTimestamps: true
 });
 ```
 
