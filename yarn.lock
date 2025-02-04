@@ -619,10 +619,10 @@ braces@^3.0.3:
   dependencies:
     fill-range "^7.1.1"
 
-browser-id3-writer@^6.1.0:
-  version "6.1.0"
-  resolved "https://registry.yarnpkg.com/browser-id3-writer/-/browser-id3-writer-6.1.0.tgz#28664b12c1a071330290437a5a06b28eb4338a3d"
-  integrity sha512-99mQN3GAZlqWnbA0cispSAab9uJJzzv86ffoA/w6ohfqAi/5qOGbEhh0fRAQMrnhsOBsy89mqMc+JdnaWtJObw==
+browser-id3-writer@^6.2.0:
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/browser-id3-writer/-/browser-id3-writer-6.2.0.tgz#6bd194acad915eedb0b6d18c03d2107f3588b42a"
+  integrity sha512-1tZPvkQ1LpGLS/bLXtic/rUkcOjfZpfvPcSxyMBnt7eA1VmNiKeJjKj3m/0UhNLOOp84fEn9uOuGS827CYQjlg==
 
 call-bind@^1.0.0, call-bind@^1.0.2:
   version "1.0.2"
