@@ -52,6 +52,6 @@
     "typescript-eslint": "^8.40.0"
   },
   "dependencies": {
-    "browser-id3-writer": "^6.2.0"
+    "browser-id3-writer": "^6.3.1"
   }
 }
