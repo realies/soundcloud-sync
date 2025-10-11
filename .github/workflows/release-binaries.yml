@@ -40,14 +40,6 @@ jobs:
         with:
           deno-version: v2.x
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 'lts/*'
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
       - name: Build binary
         run: deno compile --allow-net --allow-read --allow-write --allow-env --allow-sys --target ${{ matrix.target }} --output ${{ matrix.output }} src/cli.ts
 
