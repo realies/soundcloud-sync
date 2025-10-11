@@ -49,12 +49,14 @@ export default async function getMissingMusic(
     await fs.mkdir(folder);
   }
 
-  const availableMusic = (await fs.readdir(folder)).map(filename => path.parse(filename).name);
+  const availableMusic = (await fs.readdir(folder)).map(filename =>
+    path.parse(filename).name.toLowerCase(),
+  );
 
   // Handle missing tracks in parallel
   const missingTracks = likes.filter(
     ({ track }) =>
-      !availableMusic.includes(sanitiseFilename(track.title)) &&
+      !availableMusic.includes(sanitiseFilename(track.title).toLowerCase()) &&
       track.media.transcodings.length > 0,
   );
 

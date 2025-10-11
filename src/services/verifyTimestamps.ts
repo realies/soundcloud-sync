@@ -53,10 +53,12 @@ export default async function verifyTimestamps(
   folder: string,
   callbacks: Callbacks = {},
 ): Promise<VerifyTimestampResult[]> {
-  const availableMusic = (await fs.readdir(folder)).map(filename => path.parse(filename).name);
+  const availableMusic = (await fs.readdir(folder)).map(filename =>
+    path.parse(filename).name.toLowerCase(),
+  );
 
   const existingTracks = likes.filter(({ track }) =>
-    availableMusic.includes(sanitiseFilename(track.title)),
+    availableMusic.includes(sanitiseFilename(track.title).toLowerCase()),
   );
 
   return Promise.all(
