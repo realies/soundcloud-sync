@@ -5,6 +5,9 @@
   "imports": {
     "browser-id3-writer": "npm:browser-id3-writer@^6.1.0"
   },
+  "exclude": [
+    "node_modules"
+  ],
   "compilerOptions": {
     "lib": ["deno.window", "deno.ns", "es2020"],
     "strict": true,
