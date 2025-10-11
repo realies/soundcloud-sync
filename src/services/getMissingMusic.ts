@@ -99,7 +99,7 @@ export default async function getMissingMusic(
         }
 
         // Add ID3 tags
-        const writer = new ID3Writer(audioBuffer);
+        const writer = new ID3Writer(audioBuffer.buffer);
         writer.setFrame('TIT2', getTrackTitle(track)).setFrame('TPE1', [getTrackArtist(track)]);
 
         // Add artwork if available
