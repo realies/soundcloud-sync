@@ -3,7 +3,7 @@
     "start": "deno run --allow-net --allow-read --allow-write --allow-env --allow-sys src/cli.ts"
   },
   "imports": {
-    "browser-id3-writer": "npm:browser-id3-writer@^6.1.0"
+    "browser-id3-writer": "npm:browser-id3-writer@^6.3.1"
   },
   "exclude": [
     "node_modules"

@@ -40,6 +40,9 @@ jobs:
         with:
           deno-version: v2.x
 
+      - name: Install Deno dependencies
+        run: deno install --entrypoint src/cli.ts
+
       - name: Build binary
         run: deno compile --allow-net --allow-read --allow-write --allow-env --allow-sys --target ${{ matrix.target }} --output ${{ matrix.output }} src/cli.ts
 
