@@ -13,38 +13,38 @@ jobs:
         include:
           - os: ubuntu-latest
             arch: amd64
-            target: x86_64-unknown-linux-gnu
+            target: bun-linux-x64
             output: soundcloud-sync-linux-amd64
           - os: ubuntu-latest
             arch: arm64
-            target: aarch64-unknown-linux-gnu
+            target: bun-linux-arm64
             output: soundcloud-sync-linux-arm64
           - os: windows-latest
             arch: amd64
-            target: x86_64-pc-windows-msvc
+            target: bun-windows-x64
             output: soundcloud-sync-windows-amd64.exe
           - os: macos-latest
             arch: amd64
-            target: x86_64-apple-darwin
+            target: bun-darwin-x64
             output: soundcloud-sync-macos-amd64
           - os: macos-latest
             arch: arm64
-            target: aarch64-apple-darwin
+            target: bun-darwin-arm64
             output: soundcloud-sync-macos-arm64
 
     steps:
       - uses: actions/checkout@v4
       
-      - name: Setup Deno
-        uses: denoland/setup-deno@v2
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          deno-version: v2.x
+          bun-version: latest
 
-      - name: Install Deno dependencies
-        run: deno install --entrypoint src/cli.ts
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
 
       - name: Build binary
-        run: deno compile --allow-net --allow-read --allow-write --allow-env --allow-sys --target ${{ matrix.target }} --output ${{ matrix.output }} src/cli.ts
+        run: bun build --compile --target ${{ matrix.target }} --outfile ${{ matrix.output }} src/cli.ts
 
       - name: Upload binary to release
         uses: svenstaro/upload-release-action@v2
