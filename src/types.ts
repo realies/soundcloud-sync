@@ -34,8 +34,11 @@ export interface Track {
   id: number;
   /** Track title */
   title: string;
-  /** Track artist */
-  artist: string;
+  /** Uploading user (canonical fallback for the track artist) */
+  user: {
+    /** Username of the uploader */
+    username: string;
+  };
   /** URL to track artwork */
   artwork_url?: string;
   /** Media transcoding information */
@@ -53,12 +56,12 @@ export interface Track {
       };
     }>;
   };
-  /** Additional metadata from publisher */
+  /** Additional metadata from publisher (fields may be missing on individual tracks) */
   publisher_metadata?: {
     /** Artist name from publisher */
-    artist: string;
+    artist?: string;
     /** Release title from publisher */
-    release_title: string;
+    release_title?: string;
   };
 }
 

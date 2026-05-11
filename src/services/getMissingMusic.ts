@@ -5,21 +5,20 @@ import sanitiseFilename from '../helpers/sanitise.ts';
 import webAgent from './webAgent.ts';
 import { UserLike, Callbacks, DownloadResult, Track } from '../types.ts';
 
+/** Max simultaneous in-flight downloads — bounds local fd/memory pressure. */
+const MAX_CONCURRENT_DOWNLOADS = 128;
+
 const getBestTranscoding = (track: Track) =>
-  track.media.transcodings.find(
-    t =>
-      (t.format.protocol === 'progressive' && t.format.mime_type === 'audio/mpeg') ||
-      t.format.mime_type === 'audio/mpeg',
-  );
+  track.media.transcodings.find(t => t.format.mime_type === 'audio/mpeg');
 
 export const getTrackTitle = (track: Track) =>
   track?.publisher_metadata?.release_title || track.title;
 
-export const getTrackArtist = (track: Track) => track?.publisher_metadata?.artist || track.artist;
+export const getTrackArtist = (track: Track) =>
+  track?.publisher_metadata?.artist || track.user.username;
 
 const getArtworkUrl = (url?: string) => url?.replace('large', 't500x500');
 
-// Download a single segment
 const downloadSegment = async (url: string): Promise<Uint8Array> => {
   const response = await fetch(url);
   if (!response.ok) throw new Error(`Failed to download segment: ${url}`);
@@ -27,7 +26,6 @@ const downloadSegment = async (url: string): Promise<Uint8Array> => {
   return new Uint8Array(buffer);
 };
 
-// Download artwork if available
 const downloadArtwork = async (url: string): Promise<ArrayBuffer | null> => {
   try {
     const response = await fetch(url);
@@ -53,88 +51,93 @@ export default async function getMissingMusic(
     path.parse(filename).name.toLowerCase(),
   );
 
-  // Handle missing tracks in parallel
   const missingTracks = likes.filter(
-    ({ track }) =>
-      !availableMusic.includes(sanitiseFilename(track.title).toLowerCase()) &&
-      track.media.transcodings.length > 0,
+    ({ track }) => !availableMusic.includes(sanitiseFilename(track.title).toLowerCase()),
   );
 
-  return Promise.all(
-    missingTracks.map(async ({ track, created_at }) => {
-      callbacks.onDownloadStart?.(track);
+  const downloadOne = async ({ track, created_at }: UserLike): Promise<DownloadResult> => {
+    callbacks.onDownloadStart?.(track);
 
-      try {
-        const transcoding = getBestTranscoding(track);
-        if (!transcoding) {
-          throw new Error('No suitable audio format found');
-        }
+    try {
+      const transcoding = getBestTranscoding(track);
+      if (!transcoding) throw new Error('No suitable audio format');
+      // SoundCloud serves Go+ snippet-only tracks under `/preview/`; full streams under `/stream/`
+      if (transcoding.url.includes('/preview/')) throw new Error('Snippet-only stream');
 
-        const transcodingResponse = await webAgent(transcoding.url);
-        const { url: playlistUrl } = JSON.parse(transcodingResponse as string);
+      const transcodingResponse = await webAgent(transcoding.url);
+      const { url: playlistUrl } = JSON.parse(transcodingResponse as string);
+      if (!playlistUrl) throw new Error('Stream URL unavailable');
 
-        // Get playlist
-        const playlistResponse = await fetch(playlistUrl);
-        if (!playlistResponse.ok) throw new Error('Failed to fetch playlist');
-        const playlist = await playlistResponse.text();
+      const playlistResponse = await fetch(playlistUrl);
+      if (!playlistResponse.ok) throw new Error('Failed to fetch playlist');
+      const playlist = await playlistResponse.text();
 
-        // Parse playlist for MP3 segments
-        const segments = playlist
-          .split('\n')
-          .filter(line => line.trim() && !line.startsWith('#'))
-          .map(line => new URL(line, playlistUrl).toString());
+      const segments = playlist
+        .split('\n')
+        .filter(line => line.trim() && !line.startsWith('#'))
+        .map(line => new URL(line, playlistUrl).toString());
 
-        if (segments.length === 0) {
-          throw new Error('No audio segments found in playlist');
-        }
-
-        // Download and concatenate segments
-        const chunks = await Promise.all(segments.map(downloadSegment));
-
-        // Combine all chunks
-        const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
-        const audioBuffer = new Uint8Array(totalLength);
-        let offset = 0;
-        for (const chunk of chunks) {
-          audioBuffer.set(chunk, offset);
-          offset += chunk.length;
-        }
-
-        // Add ID3 tags
-        const writer = new ID3Writer(audioBuffer.buffer);
-        writer.setFrame('TIT2', getTrackTitle(track)).setFrame('TPE1', [getTrackArtist(track)]);
-
-        // Add artwork if available
-        if (track.artwork_url) {
-          const artworkBuffer = await downloadArtwork(getArtworkUrl(track.artwork_url)!);
-          if (artworkBuffer) {
-            writer.setFrame('APIC', {
-              type: 3,
-              data: artworkBuffer,
-              description: '',
-            });
-          }
-        }
-
-        // Write file with tags
-        const filePath = path.join(folder, `${sanitiseFilename(track.title)}.mp3`);
-        const taggedBuffer = new Uint8Array(writer.addTag());
-        await fs.writeFile(filePath, taggedBuffer);
-        const timestamp = new Date(created_at);
-        await fs.utimes(filePath, timestamp, timestamp);
-
-        callbacks.onDownloadComplete?.(track);
-        return { track: track.title, status: { success: true } };
-      } catch (error) {
-        callbacks.onDownloadError?.(track, error);
-        return {
-          track: track.title,
-          status: {
-            success: false,
-            error: error instanceof Error ? error.message : String(error),
-          },
-        };
+      if (segments.length === 0) {
+        throw new Error('No audio segments found in playlist');
       }
-    }),
+
+      const chunks = await Promise.all(segments.map(downloadSegment));
+
+      const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+      const audioBuffer = new Uint8Array(totalLength);
+      let offset = 0;
+      for (const chunk of chunks) {
+        audioBuffer.set(chunk, offset);
+        offset += chunk.length;
+      }
+
+      const writer = new ID3Writer(audioBuffer.buffer);
+      writer.setFrame('TIT2', getTrackTitle(track)).setFrame('TPE1', [getTrackArtist(track)]);
+
+      if (track.artwork_url) {
+        const artworkBuffer = await downloadArtwork(getArtworkUrl(track.artwork_url)!);
+        if (artworkBuffer) {
+          writer.setFrame('APIC', {
+            type: 3,
+            data: artworkBuffer,
+            description: '',
+          });
+        }
+      }
+
+      const filePath = path.join(folder, `${sanitiseFilename(track.title)}.mp3`);
+      const taggedBuffer = new Uint8Array(writer.addTag());
+      await fs.writeFile(filePath, taggedBuffer);
+      const timestamp = new Date(created_at);
+      await fs.utimes(filePath, timestamp, timestamp);
+
+      callbacks.onDownloadComplete?.(track);
+      return { track: track.title, status: { success: true } };
+    } catch (error) {
+      callbacks.onDownloadError?.(track, error);
+      return {
+        track: track.title,
+        status: {
+          success: false,
+          error: error instanceof Error ? error.message : String(error),
+        },
+      };
+    }
+  };
+
+  // Bounded worker pool: keep up to MAX_CONCURRENT_DOWNLOADS in-flight; parallelism comes from running multiple workers
+  const results: DownloadResult[] = new Array(missingTracks.length);
+  let nextIndex = 0;
+  const worker = async (): Promise<void> => {
+    while (nextIndex < missingTracks.length) {
+      const i = nextIndex;
+      nextIndex += 1;
+      // eslint-disable-next-line no-await-in-loop
+      results[i] = await downloadOne(missingTracks[i]);
+    }
+  };
+  await Promise.all(
+    Array.from({ length: Math.min(MAX_CONCURRENT_DOWNLOADS, missingTracks.length) }, worker),
   );
+  return results;
 }

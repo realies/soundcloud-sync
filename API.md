@@ -61,14 +61,13 @@ Gets the SoundCloud client information needed for API requests.
 function getClient(profileName: string): Promise<Client>
 ```
 
-#### getUserLikes(client, offset?, limit?)
+#### getUserLikes(client, limit?)
 
-Fetches liked tracks for a SoundCloud user.
+Fetches liked tracks for a SoundCloud user, paginating internally via SoundCloud's `next_href` cursor until `limit` is reached.
 
 ```typescript
 function getUserLikes(
   client: Client,
-  offset?: string,
   limit?: number,
 ): Promise<UserLike[]>
 ```
@@ -127,8 +126,11 @@ interface Track {
   id: number;
   /** Track title */
   title: string;
-  /** Track artist */
-  artist: string;
+  /** Uploading user (canonical fallback for the track artist) */
+  user: {
+    /** Username of the uploader */
+    username: string;
+  };
   /** URL to track artwork */
   artwork_url?: string;
   /** Media transcoding information */
@@ -146,12 +148,12 @@ interface Track {
       };
     }>;
   };
-  /** Additional metadata from publisher */
+  /** Additional metadata from publisher (fields may be missing on individual tracks) */
   publisher_metadata?: {
     /** Artist name from publisher */
-    artist: string;
+    artist?: string;
     /** Release title from publisher */
-    release_title: string;
+    release_title?: string;
   };
 }
 
@@ -232,7 +234,7 @@ await soundCloudSync({
 import { getClient, getUserLikes, getMissingMusic, verifyTimestamps } from 'soundcloud-sync';
 
 const client = await getClient('your-username');
-const likes = await getUserLikes(client, '0', 100);
+const likes = await getUserLikes(client, 100);
 
 // Define callbacks for progress tracking
 const callbacks = {
