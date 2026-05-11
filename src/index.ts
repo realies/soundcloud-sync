@@ -57,9 +57,9 @@ export default async function soundCloudSync({
     }
 
     const parts: string[] = [];
-    if (!noDownload) parts.push(`${downloadedCount} downloaded`);
+    if (downloadedCount) parts.push(`${downloadedCount} downloaded`);
     if (failedCount) parts.push(`${failedCount} failed`);
-    if (shouldVerifyTimestamps) parts.push(`${verifyResultsLength} verified`);
+    if (verifyResultsLength) parts.push(`${verifyResultsLength} verified`);
     logger.info(`Completed${parts.length ? `: ${parts.join(', ')}` : ''}`);
   } catch (error) {
     logger.error(`An error occurred: ${error instanceof Error ? error.message : String(error)}`);
