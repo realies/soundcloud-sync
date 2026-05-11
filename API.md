@@ -139,6 +139,8 @@ interface Track {
     transcodings: Array<{
       /** URL to fetch audio data */
       url: string;
+      /** True for Go+ preview/snippet transcodings; false for full streams */
+      snipped?: boolean;
       /** Format details */
       format: {
         /** Streaming protocol (e.g., 'progressive') */

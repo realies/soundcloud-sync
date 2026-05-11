@@ -8,9 +8,8 @@ import { UserLike, Callbacks, DownloadResult, Track } from '../types.ts';
 const MAX_CONCURRENT_DOWNLOADS = 128;
 
 const getBestTranscoding = (track: Track) =>
-  track.media.transcodings.find(
-    t => t.format.mime_type === 'audio/mpeg' && !t.url.includes('/preview/'),
-  ) ?? track.media.transcodings.find(t => t.format.mime_type === 'audio/mpeg');
+  track.media.transcodings.find(t => t.format.mime_type === 'audio/mpeg' && !t.snipped) ??
+  track.media.transcodings.find(t => t.format.mime_type === 'audio/mpeg');
 
 export const getTrackTitle = (track: Track) =>
   track?.publisher_metadata?.release_title || track.title;
@@ -62,7 +61,7 @@ export default async function getMissingMusic(
     try {
       const transcoding = getBestTranscoding(track);
       if (!transcoding) throw new Error('No suitable audio format found');
-      if (transcoding.url.includes('/preview/')) throw new Error('No full-length audio available');
+      if (transcoding.snipped) throw new Error('No full-length audio available');
 
       const transcodingResponse = await webAgent(transcoding.url);
       const { url: playlistUrl } = JSON.parse(transcodingResponse as string);
