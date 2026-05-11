@@ -2,7 +2,6 @@ import webAgent from './webAgent.ts';
 import { Client, UserLike } from '../types.ts';
 import logger from '../helpers/logger.ts';
 
-/** Maximum tracks SoundCloud's API returns per request, regardless of `limit`. */
 const PAGE_SIZE = 200;
 
 /**
@@ -30,7 +29,6 @@ export default async function getUserLikes(client: Client, limit = 50): Promise<
   while (nextHref && collection.length < limit) {
     logger.debug('Fetching user likes page', { fetched: collection.length, limit });
 
-    // Cursor pagination is inherently sequential — each page's `next_href` is in the previous response
     // eslint-disable-next-line no-await-in-loop
     const response = await webAgent(`${nextHref}&${auth}`);
     const page = JSON.parse(response as string) as {
@@ -40,11 +38,7 @@ export default async function getUserLikes(client: Client, limit = 50): Promise<
 
     collection.push(...page.collection);
     nextHref = page.next_href ?? null;
-
-    if (page.collection.length === 0) break;
   }
-
-  logger.debug('User likes fetched', { count: Math.min(collection.length, limit) });
 
   return collection.slice(0, limit).map(({ track, created_at }) => ({
     created_at,

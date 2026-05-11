@@ -5,11 +5,12 @@ import sanitiseFilename from '../helpers/sanitise.ts';
 import webAgent from './webAgent.ts';
 import { UserLike, Callbacks, DownloadResult, Track } from '../types.ts';
 
-/** Max simultaneous in-flight downloads — bounds local fd/memory pressure. */
 const MAX_CONCURRENT_DOWNLOADS = 128;
 
 const getBestTranscoding = (track: Track) =>
-  track.media.transcodings.find(t => t.format.mime_type === 'audio/mpeg');
+  track.media.transcodings.find(
+    t => t.format.mime_type === 'audio/mpeg' && !t.url.includes('/preview/'),
+  ) ?? track.media.transcodings.find(t => t.format.mime_type === 'audio/mpeg');
 
 export const getTrackTitle = (track: Track) =>
   track?.publisher_metadata?.release_title || track.title;
@@ -60,13 +61,11 @@ export default async function getMissingMusic(
 
     try {
       const transcoding = getBestTranscoding(track);
-      if (!transcoding) throw new Error('No suitable audio format');
-      // SoundCloud serves Go+ snippet-only tracks under `/preview/`; full streams under `/stream/`
-      if (transcoding.url.includes('/preview/')) throw new Error('Snippet-only stream');
+      if (!transcoding) throw new Error('No suitable audio format found');
+      if (transcoding.url.includes('/preview/')) throw new Error('No full-length audio available');
 
       const transcodingResponse = await webAgent(transcoding.url);
       const { url: playlistUrl } = JSON.parse(transcodingResponse as string);
-      if (!playlistUrl) throw new Error('Stream URL unavailable');
 
       const playlistResponse = await fetch(playlistUrl);
       if (!playlistResponse.ok) throw new Error('Failed to fetch playlist');
@@ -125,7 +124,6 @@ export default async function getMissingMusic(
     }
   };
 
-  // Bounded worker pool: keep up to MAX_CONCURRENT_DOWNLOADS in-flight; parallelism comes from running multiple workers
   const results: DownloadResult[] = new Array(missingTracks.length);
   let nextIndex = 0;
   const worker = async (): Promise<void> => {
