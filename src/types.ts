@@ -34,7 +34,7 @@ export interface Track {
   id: number;
   /** Track title */
   title: string;
-  /** Uploading user (canonical fallback for the track artist) */
+  /** Uploading user */
   user: {
     /** Username of the uploader */
     username: string;
@@ -56,7 +56,7 @@ export interface Track {
       };
     }>;
   };
-  /** Additional metadata from publisher (fields may be missing on individual tracks) */
+  /** Additional metadata from publisher */
   publisher_metadata?: {
     /** Artist name from publisher */
     artist?: string;

@@ -7,9 +7,10 @@ const PAGE_SIZE = 200;
 /**
  * Fetches a user's liked tracks from SoundCloud.
  *
- * Walks SoundCloud's cursor-paginated `track_likes` endpoint via `next_href`
- * until either `limit` is reached or there are no more pages, then attaches
- * authentication to each track's media URLs for streaming.
+ * The function:
+ * 1. Constructs the initial paginated API request URL
+ * 2. Walks `next_href` cursor until `limit` is reached or pages are exhausted
+ * 3. Attaches authentication to each track's media URLs for streaming
  *
  * @param client - SoundCloud client details for authentication
  * @param limit - Maximum number of likes to fetch (default: 50)
