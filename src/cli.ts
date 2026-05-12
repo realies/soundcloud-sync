@@ -212,17 +212,12 @@ class CliParser {
     const cli = new CliParser(config);
     const args = process.argv.slice(2);
 
-    if (args.length === 0) {
+    if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
       logger.error(cli.formatHelp());
-      process.exit(1);
+      process.exit(args.length === 0 ? 1 : 0);
     }
 
     const parsed = cli.parse(args);
-
-    if (parsed['--help']) {
-      logger.error(cli.formatHelp());
-      process.exit(0);
-    }
 
     await soundCloudSync({
       username: parsed['--user'] as string,
