@@ -25,15 +25,23 @@ export default function sanitiseFilename(
   const controlRe = /[\x00-\x1f\x80-\x9f]/g;
   const reservedRe = /^\.+$/;
   const windowsReservedRe = /^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i;
-  const windowsTrailingRe = /[. ]+$/;
+
+  // Trim trailing dots/spaces in linear time (regex /[. ]+$/ is O(n²) on
+  // adversarial input per CodeQL's js/polynomial-redos rule).
+  const trimWindowsTrailing = (s: string) => {
+    let i = s.length;
+    while (i > 0 && (s[i - 1] === '.' || s[i - 1] === ' ')) i -= 1;
+    return s.slice(0, i);
+  };
 
   // First pass with replacement character
-  let sanitised = input
-    .replace(illegalRe, replacement)
-    .replace(controlRe, replacement)
-    .replace(reservedRe, replacement)
-    .replace(windowsReservedRe, replacement)
-    .replace(windowsTrailingRe, replacement);
+  let sanitised = trimWindowsTrailing(
+    input
+      .replace(illegalRe, replacement)
+      .replace(controlRe, replacement)
+      .replace(reservedRe, replacement)
+      .replace(windowsReservedRe, replacement),
+  );
 
   // Limit to 255 bytes while respecting UTF-8
   if (Buffer.byteLength(sanitised) > 255) {
@@ -50,12 +58,13 @@ export default function sanitiseFilename(
 
   // Second pass with empty replacement if we used a replacement char
   if (replacement !== '') {
-    sanitised = sanitised
-      .replace(illegalRe, '')
-      .replace(controlRe, '')
-      .replace(reservedRe, '')
-      .replace(windowsReservedRe, '')
-      .replace(windowsTrailingRe, '');
+    sanitised = trimWindowsTrailing(
+      sanitised
+        .replace(illegalRe, '')
+        .replace(controlRe, '')
+        .replace(reservedRe, '')
+        .replace(windowsReservedRe, ''),
+    );
   }
 
   return sanitised;
