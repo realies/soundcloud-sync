@@ -23,7 +23,10 @@ jobs:
             arch: amd64
             target: bun-windows-x64
             output: soundcloud-sync-windows-amd64.exe
-          - os: windows-latest
+          # Cross-compiled from Linux: Bun's Windows-x64 host can't fetch its own
+          # bun-windows-aarch64 helper (`Failed to extract executable`); Linux→Windows
+          # cross-compile works fine and mirrors the linux-arm64 pattern above.
+          - os: ubuntu-latest
             arch: arm64
             target: bun-windows-arm64
             output: soundcloud-sync-windows-arm64.exe
