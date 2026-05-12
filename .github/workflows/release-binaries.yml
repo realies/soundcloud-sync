@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    name: Build ${{ matrix.os }}-${{ matrix.arch }}
+    name: Build ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
