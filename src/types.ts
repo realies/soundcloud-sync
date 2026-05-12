@@ -34,8 +34,11 @@ export interface Track {
   id: number;
   /** Track title */
   title: string;
-  /** Track artist */
-  artist: string;
+  /** Uploading user */
+  user: {
+    /** Username of the uploader */
+    username: string;
+  };
   /** URL to track artwork */
   artwork_url?: string;
   /** Media transcoding information */
@@ -44,6 +47,8 @@ export interface Track {
     transcodings: Array<{
       /** URL to fetch audio data */
       url: string;
+      /** True for Go+ preview/snippet transcodings; false for full streams */
+      snipped?: boolean;
       /** Format details */
       format: {
         /** Streaming protocol (e.g., 'progressive') */
@@ -56,9 +61,9 @@ export interface Track {
   /** Additional metadata from publisher */
   publisher_metadata?: {
     /** Artist name from publisher */
-    artist: string;
+    artist?: string;
     /** Release title from publisher */
-    release_title: string;
+    release_title?: string;
   };
 }
 

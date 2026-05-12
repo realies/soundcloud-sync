@@ -26,7 +26,7 @@ export default async function soundCloudSync({
 
   try {
     const client = await getClient(username);
-    const userLikes = await getUserLikes(client, '0', limit);
+    const userLikes = await getUserLikes(client, limit);
 
     const callbacks = {
       onDownloadStart: (track: Track) => logger.info(`Downloading "${track.title}"`),
@@ -48,16 +48,19 @@ export default async function soundCloudSync({
       ({ length: verifyResultsLength } = await verifyTimestamps(userLikes, folder, callbacks));
     }
 
-    let downloadResultsLength = 0;
+    let downloadedCount = 0;
+    let failedCount = 0;
     if (!noDownload) {
-      ({ length: downloadResultsLength } = await getMissingMusic(userLikes, folder, callbacks));
+      const results = await getMissingMusic(userLikes, folder, callbacks);
+      downloadedCount = results.filter(r => r.status.success).length;
+      failedCount = results.length - downloadedCount;
     }
 
-    logger.info(
-      `Completed successfully${downloadResultsLength ? `: ${downloadResultsLength} tracks downloaded` : ''}${
-        shouldVerifyTimestamps ? `, ${verifyResultsLength} tracks verified` : ''
-      }`,
-    );
+    const parts: string[] = [];
+    if (downloadedCount) parts.push(`${downloadedCount} downloaded`);
+    if (failedCount) parts.push(`${failedCount} failed`);
+    if (verifyResultsLength) parts.push(`${verifyResultsLength} verified`);
+    logger.info(`Completed${parts.length ? `: ${parts.join(', ')}` : ''}`);
   } catch (error) {
     logger.error(`An error occurred: ${error instanceof Error ? error.message : String(error)}`);
     throw error;
