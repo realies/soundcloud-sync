@@ -46,7 +46,7 @@ soundcloud-sync -u your-username --limit 100 --folder ./my-music --verify-timest
 Pre-built binaries are also available from the [releases page](https://github.com/realies/soundcloud-sync/releases) for:
 - Linux (x64, ARM64)
 - macOS (x64, ARM64/Apple Silicon)
-- Windows (x64)
+- Windows (x64, ARM64)
 
 ### Library Usage
 
