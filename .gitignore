@@ -1,6 +1,10 @@
 # Dependencies
 node_modules/
 
+# Bun-generated lockfiles (yarn.lock is canonical; bun migrates from it)
+bun.lock
+bun.lockb
+
 # Build output
 dist/
 
