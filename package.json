@@ -33,7 +33,7 @@
     "clean": "rm -rf dist"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.5",
+    "@eslint/eslintrc": "^3.3.6",
     "@types/eslint": "^9.6.1",
     "@types/node": "^26.1.1",
     "@typescript-eslint/eslint-plugin": "^8.53.1",
