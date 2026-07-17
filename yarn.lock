@@ -587,10 +587,10 @@ brace-expansion@^5.0.5:
   dependencies:
     balanced-match "^4.0.2"
 
-browser-id3-writer@^6.3.1:
-  version "6.3.1"
-  resolved "https://registry.yarnpkg.com/browser-id3-writer/-/browser-id3-writer-6.3.1.tgz#049b6f00374fdc76396daf479044c3e3d6fdc54f"
-  integrity sha512-sRA4Uq9Q3NsmXiVpLvIDxzomtgCdbw6SY85A6fw7dUQGRVoOBg1/buFv6spPhYiSo6FlVtN5OJQTvvhbmfx9rQ==
+browser-id3-writer@^6.3.2:
+  version "6.3.2"
+  resolved "https://registry.yarnpkg.com/browser-id3-writer/-/browser-id3-writer-6.3.2.tgz#ae7465aa90820b76d45d149e69d7221e35f52229"
+  integrity sha512-QSnnCNYc4mGu3qkJnsHN+LdqQ5yXGZL1UPrntHEY7NbLkahVtNOuDtUqe3g9guCe8+f/dLixbqZPwnU0kEfQ6w==
 
 call-bind-apply-helpers@^1.0.0, call-bind-apply-helpers@^1.0.1, call-bind-apply-helpers@^1.0.2:
   version "1.0.2"
