@@ -52,7 +52,7 @@
     "typescript-eslint": "^8.69.0"
   },
   "dependencies": {
-    "browser-id3-writer": "^6.3.2"
+    "browser-id3-writer": "^6.4.0"
   },
   "resolutions": {
     "picomatch": "^4.0.4"
